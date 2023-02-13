@@ -9,6 +9,7 @@ import com.example.demo.model.User;
 import com.example.demo.repository.BookRepository;
 import com.example.demo.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -83,8 +84,10 @@ public class UserService {
         }
         return bookResponseModelList;
     }
+    @Transactional
     public void addBookToUser(long id, BookRequestModel bookRequestModel){
         bookRepository.loanBook(id,bookRequestModel.getTitle());
+//       var books= bookRepository.findByTitle(bookRequestModel.getTitle());
     }
 
 }
