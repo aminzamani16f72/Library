@@ -1,7 +1,10 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.BookRequestModel;
+import com.example.demo.dto.BookResponseModel;
 import com.example.demo.dto.UserRequestModel;
 import com.example.demo.dto.UserResponseModel;
+import com.example.demo.model.Book;
 import com.example.demo.model.User;
 import com.example.demo.repository.BookRepository;
 import com.example.demo.repository.UserRepository;
@@ -71,17 +74,17 @@ public class UserService {
         userRepository.deleteById(id);
     }
 
-//    public List<BookResponseModel> loanedBooks(long id){
-//        List<Book> bookList= bookRepository.findBooksByUserId(id);
-//        List<BookResponseModel> bookResponseModelList=new ArrayList<>();
-//        for (var bookItem:bookList){
-//            var bookModel=new BookResponseModel(bookItem.getId(),bookItem.getTitle());
-//            bookResponseModelList.add(bookModel);
-//        }
-//        return bookResponseModelList;
-//    }
-//    public void addBookToUser(long id, BookRequestModel bookRequestModel){
-//        bookRepository.loanBook(id,bookRequestModel.getTitle());
-//    }
+    public List<BookResponseModel> loanedBooks(long id){
+        List<Book> bookList= bookRepository.findBooksByUserId(id);
+        List<BookResponseModel> bookResponseModelList=new ArrayList<>();
+        for (var bookItem:bookList){
+            var bookModel=new BookResponseModel(bookItem.getId(),bookItem.getTitle());
+            bookResponseModelList.add(bookModel);
+        }
+        return bookResponseModelList;
+    }
+    public void addBookToUser(long id, BookRequestModel bookRequestModel){
+        bookRepository.loanBook(id,bookRequestModel.getTitle());
+    }
 
 }

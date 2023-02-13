@@ -1,7 +1,7 @@
 package com.example.demo.model;
 
 import jakarta.persistence.*;
-
+@Table(name = "book")
 @Entity
 public class Book {
 
@@ -9,7 +9,7 @@ public class Book {
     @GeneratedValue
     private long id;
 
-    @Column(name = "Book_Name")
+    @Column(name = "book_name")
     private String title;
 
     @ManyToOne
