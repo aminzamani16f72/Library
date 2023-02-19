@@ -73,7 +73,9 @@ public class UserService {
            bookList=user.getBookList();
            bookList.add(book);
            user.setBookList(bookList);
+           book.setUser(user);
            userRepository.save(user);
+           bookRepository.save(book);
            return Optional.of(user.getId());
         }
         return Optional.empty();
