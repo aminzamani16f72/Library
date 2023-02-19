@@ -2,6 +2,7 @@ package com.example.demo.model;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -9,25 +10,27 @@ public class User {
 
     @Id
     @GeneratedValue
+    @Column(name = "user_id")
     private long id;
 
-    @Column(name = "national_Code")
+    @Column(name = "national_code")
     private long nationalId;
 
-    @Column(name = "first_Name")
+    @Column(name = "first_name")
     private String firstName;
 
-    @Column(name = "last_Name")
+    @Column(name = "last_name")
     private String lastName;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Book> bookList;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.MERGE)
+    private List<Book> bookList=new ArrayList<>();
 
     public User() {
     }
 
-    public User(long id, long nationalId, String firstName, String lastName) {
-        this.id = id;
+
+
+    public User( long nationalId, String firstName, String lastName) {
         this.nationalId = nationalId;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -71,5 +74,13 @@ public class User {
 
     public void setLastName(String lastName) {
         this.lastName = lastName;
+    }
+
+    public List<Book> getBookList() {
+        return bookList;
+    }
+
+    public void setBookList(List<Book> bookList) {
+        this.bookList = bookList;
     }
 }

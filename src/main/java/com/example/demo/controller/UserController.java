@@ -4,12 +4,14 @@ import com.example.demo.dto.BookRequestModel;
 import com.example.demo.dto.BookResponseModel;
 import com.example.demo.dto.UserRequestModel;
 import com.example.demo.dto.UserResponseModel;
+import com.example.demo.model.User;
 import com.example.demo.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping(value = "users")
@@ -26,6 +28,14 @@ public class UserController {
 
         return new ResponseEntity<>(userService.findAllUsers(), HttpStatus.OK);
 
+    }
+    @GetMapping(value = "{id}")
+    public ResponseEntity<Optional<UserResponseModel>> findUserById(@PathVariable long id){
+        var optionalUser=userService.findUserById(id);
+        if(optionalUser.isPresent()){
+            return new ResponseEntity<>(Optional.of(optionalUser.get()),HttpStatus.OK);
+        }
+        return new ResponseEntity<>(Optional.empty(),HttpStatus.NOT_FOUND);
     }
 
     @PostMapping
@@ -52,14 +62,18 @@ public class UserController {
 
     }
 
-    @GetMapping("{id}/books")
-    public ResponseEntity<List<BookResponseModel>> loanedBooks(@PathVariable long id){
+//    @GetMapping("{id}/books")
+//    public ResponseEntity<List<BookResponseModel>> loanedBooks(@PathVariable long id){
+//
+//        return new ResponseEntity<>(userService.loandBooks(id),HttpStatus.OK);
+//    }
+    @PostMapping("{userId}/books")
+    public ResponseEntity<Optional<Long>> loanBook(@PathVariable long userId, @RequestBody BookRequestModel bookRequestModel) {
+        var response = userService.addBookToUser(userId, bookRequestModel);
+        if (response.isPresent()) {
+            return new ResponseEntity<>(Optional.of(response.get()), HttpStatus.OK);
+        }
+        return new ResponseEntity<>(Optional.empty(), HttpStatus.NOT_FOUND);
+    }
 
-        return new ResponseEntity<>(userService.loanedBooks(id),HttpStatus.OK);
-    }
-    @PostMapping("{id}/books")
-    public ResponseEntity<String> loanedBooks(@PathVariable long id,@RequestBody BookRequestModel bookRequestModel){
-        userService.addBookToUser(id, bookRequestModel);
-        return new ResponseEntity<>("the book added to user",HttpStatus.OK);
-    }
 }

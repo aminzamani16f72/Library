@@ -21,12 +21,7 @@ public class BookService {
 
     public List<BookResponseModel> listOfBooks() {
         List<Book> bookList = bookRepository.findAll();
-        List<BookResponseModel> bookResponseModelList = new ArrayList<>();
-        for (var bookItem : bookList) {
-            var bookResponseModel = new BookResponseModel(bookItem.getId(), bookItem.getTitle());
-            bookResponseModelList.add(bookResponseModel);
-        }
-        return bookResponseModelList;
+       return bookList.stream().map(n ->new BookResponseModel(n.getId(),n.getTitle())).toList();
     }
 
     public Optional<BookResponseModel> findBookById(long id) {
@@ -38,9 +33,11 @@ public class BookService {
             return Optional.empty();
     }
 
-    public void addNewBook(BookRequestModel bookRequestModel) {
-        var book = new Book(bookRequestModel.getId(), bookRequestModel.getTitle());
+    public String addNewBook(BookRequestModel bookRequestModel) {
+        var book = new Book(bookRequestModel.getTitle());
         bookRepository.save(book);
+
+        return "the book’s identity = " + " " + book.getId();
     }
 
     public Optional<Long> updateBookInfo(BookRequestModel bookRequestModel, long id) {
@@ -54,7 +51,8 @@ public class BookService {
             return Optional.empty();
     }
 
-    public void deleteBookById(long id) {
+    public String deleteBookById(long id) {
         bookRepository.deleteById(id);
+        return "the book with id  " + id + "is deleted";
     }
 }

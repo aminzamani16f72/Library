@@ -2,6 +2,7 @@ package com.example.demo.dto;
 
 public class BookResponseModel {
 
+
     private long id;
     private String title;
 

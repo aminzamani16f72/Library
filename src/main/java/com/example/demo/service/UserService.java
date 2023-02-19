@@ -8,6 +8,7 @@ import com.example.demo.model.Book;
 import com.example.demo.model.User;
 import com.example.demo.repository.BookRepository;
 import com.example.demo.repository.UserRepository;
+import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,6 +17,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@Repository
 public class UserService {
 
     private final UserRepository userRepository;
@@ -27,67 +29,83 @@ public class UserService {
     }
 
     public List<UserResponseModel> findAllUsers() {
-
         List<User> listOfUsers = userRepository.findAll();
-        List<UserResponseModel> userResponseModelList = new ArrayList<>();
-        for (var userList : listOfUsers) {
-            UserResponseModel userResponseModel = new UserResponseModel(
-                    userList.getId(), userList.getNationalId(), userList.getFirstName(),userList.getLastName());
-            userResponseModelList.add(userResponseModel);
-        }
-
-        return userResponseModelList;
+        return listOfUsers.stream().map(n -> new UserResponseModel(n.getId(), n.getNationalId(), n.getFirstName(), n.getLastName())).toList();
     }
 
-    public Optional<UserResponseModel> findUserById(long id){
-        Optional<User> user=userRepository.findById(id);
-        if(user.isPresent()){
-            User userPresent=user.get();
-            return Optional.of(
-                    new UserResponseModel(userPresent.getId(),userPresent.getNationalId(),userPresent.getFirstName(),userPresent.getLastName()));
-        }
-        else
-            return Optional.empty();
+    public Optional<UserResponseModel> findUserById(long id) {
+        Optional<User> user = userRepository.findById(id);
+        return user.map(userPresent -> new UserResponseModel(userPresent.getId(), userPresent.getNationalId(), userPresent.getFirstName(), userPresent.getLastName()));
     }
 
-    public void addNewUser(UserRequestModel userRequestModel){
+    public void addNewUser(UserRequestModel userRequestModel) {
 
-        User user=new User(userRequestModel.getId(),userRequestModel.getNationalId(),userRequestModel.getFirstName(),userRequestModel.getLastName());
+        var user = new User(userRequestModel.getNationalId(), userRequestModel.getFirstName(), userRequestModel.getLastName());
         userRepository.save(user);
 
     }
 
     public Optional<Long> updateUser(long id, UserRequestModel userRequestModel) {
-        var user = userRepository.findById(id);
-        if (user.isPresent()) {
-            var userPresent = user.get();
-            userPresent.setFirstName(userRequestModel.getFirstName());
-            userPresent.setLastName(userRequestModel.getLastName());
-            userPresent.setNationalId(userRequestModel.getNationalId());
-            userRepository.save(userPresent);
-            return Optional.of(userPresent.getId());
+        var userOptional = userRepository.findById(id);
+        if (userOptional.isPresent()) {
+            var user = userOptional.get();
+            user.setFirstName(userRequestModel.getFirstName());
+            user.setLastName(userRequestModel.getLastName());
+            user.setNationalId(userRequestModel.getNationalId());
+            userRepository.save(user);
+            return Optional.of(user.getId());
         } else {
             return Optional.empty();
         }
     }
 
-    public void deleteUser(long id){
+    public void deleteUser(long id) {
         userRepository.deleteById(id);
     }
 
-    public List<BookResponseModel> loanedBooks(long id){
-        List<Book> bookList= bookRepository.findBooksByUserId(id);
-        List<BookResponseModel> bookResponseModelList=new ArrayList<>();
-        for (var bookItem:bookList){
-            var bookModel=new BookResponseModel(bookItem.getId(),bookItem.getTitle());
-            bookResponseModelList.add(bookModel);
+
+    public Optional<Long> addBookToUser(long id, BookRequestModel bookRequestModel) {
+        List<Book> bookList;
+        var userOptional = userRepository.findById(id);
+        var book = bookRepository.findBookByTitle(bookRequestModel.getTitle());
+        if(userOptional.isPresent()){
+           var user=userOptional.get();
+           bookList=user.getBookList();
+           bookList.add(book);
+           user.setBookList(bookList);
+           userRepository.save(user);
+           return Optional.of(user.getId());
         }
-        return bookResponseModelList;
+        return Optional.empty();
     }
-    @Transactional
-    public void addBookToUser(long id, BookRequestModel bookRequestModel){
-        bookRepository.loanBook(id,bookRequestModel.getTitle());
-//       var books= bookRepository.findByTitle(bookRequestModel.getTitle());
-    }
+
+
+
+//        var book=bookRepository.findBookByTitle(bookRequestModel.getTitle());
+//        book.setUser();
+//
+//        var optionalUser=userRepository.findById(id);
+//        if(optionalUser.isPresent()){
+//            var user=optionalUser.get();
+//            List<Book> bookList=user.getBookList();
+//            bookList.add(book);
+//            user.setBookList(bookList);
+//            userRepository.save(user);
+
+
+//    public List<BookResponseModel> loanedBooks(long id) {
+//        List<Book> bookList = bookRepository.findBooksByUserId(id);
+//       List<BookResponseModel> bookResponseModelList = new ArrayList<>();
+//        for (var bookItem : bookList) {
+//           var bookModel = new BookResponseModel(bookItem.getId(), bookItem.getTitle());
+//           bookResponseModelList.add(bookModel);
+//       }
+//       return bookResponseModelList;
+//    }
+//
+//    @Transactional
+//    public void addBookToUser(long id, BookRequestModel bookRequestModel) {
+//        bookRepository.loanBook(id, bookRequestModel.getTitle());
+//    }
 
 }

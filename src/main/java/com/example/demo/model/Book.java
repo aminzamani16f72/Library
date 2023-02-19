@@ -7,13 +7,16 @@ public class Book {
 
     @Id
     @GeneratedValue
+    @Column(name = "book_id")
     private long id;
 
     @Column(name = "book_name")
     private String title;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+//    @JoinColumn(name = "user_id")
+    @JoinTable(name = "user_book",joinColumns = @JoinColumn(name = "book_id")
+    ,inverseJoinColumns = @JoinColumn(name = "user_id"))
     private User user;
 
     public Book(long id, String title, User user) {
@@ -22,12 +25,12 @@ public class Book {
         this.user = user;
     }
 
-    public Book(long id, String title) {
-        this.id = id;
-        this.title = title;
-    }
 
     public Book() {
+    }
+
+    public Book(String title) {
+        this.title=title;
     }
 
     public long getId() {
